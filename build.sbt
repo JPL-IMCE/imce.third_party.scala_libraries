@@ -1,6 +1,5 @@
 import sbt.Keys._
 import sbt._
-import xerial.sbt._
 
 import gov.nasa.jpl.imce.sbt._
 
