@@ -126,6 +126,8 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
           jars ++ srcs ++ docs
       },
 
+      extractArchives := {},
+
       artifacts <+= (name in Universal) { n => Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map()) },
       packagedArtifacts <+= (packageBin in Universal, name in Universal) map { (p, n) =>
         Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map()) -> p
