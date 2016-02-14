@@ -27,7 +27,14 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
       IMCEKeys.licenseYearOrRange := "2015-2016",
       IMCEKeys.organizationInfo := IMCEPlugin.Organizations.thirdParty,
       git.baseVersion := Versions.version,
-      scalaVersion := Versions.scala_version
+      scalaVersion := Versions.scala_version,
+      projectID := {
+        val previous = projectID.value
+        previous.extra(
+          "build.date.utc" -> buildUTCDate.value,
+          "artifact.kind" -> "third_party.aggregate.libraries")
+      }
+
     )
     .settings(
 
