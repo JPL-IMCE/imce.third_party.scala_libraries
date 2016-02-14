@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "2.3.0"
+  val version = "2.3.1"
 
   // scalaLibs
 

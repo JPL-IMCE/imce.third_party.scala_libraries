@@ -18,4 +18,3 @@
 }
 
 addSbtPlugin("gov.nasa.jpl.imce" % "imce-sbt-plugin" % "2.3.1")
-
