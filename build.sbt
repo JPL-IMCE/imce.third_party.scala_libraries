@@ -165,6 +165,9 @@ lazy val scalaLibs = IMCEThirdPartyProject("scala-libraries", "scalaLibs")
       "org.scala-lang.modules" %% "scala-swing" % Versions.scala_swing_version %
       "compile" withSources() withJavadoc(),
 
+      "org.scala-lang.modules" %% "scala-java8-compat" % Versions.scala_java8_compat_version %
+        "compile" withSources() withJavadoc(),
+
       "org.scala-lang.plugins" %% "scala-continuations-library" % Versions.scala_continuations_version %
       "compile" withSources() withJavadoc()
    ))
