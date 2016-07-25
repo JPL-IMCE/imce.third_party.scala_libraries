@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "2.6.0"
+  val version = "2.7.0"
 
   // scalaLibs6
 
@@ -21,7 +21,7 @@ object Versions {
   val scala_swing_version = "1.0.2"
 
   //http://mvnrepository.com/artifact/org.scala-lang.modules/scala-java8-compat_2.11
-  val scala_java8_compat_version = "0.7.0"
+  val scala_java8_compat_version = "0.8.0-RC3"
 
   // Scala compiler plugins
 
