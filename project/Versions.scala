@@ -2,12 +2,12 @@
 object Versions {
 
   // this project's version
-  val version = "2.5.0"
+  val version = "2.6.0"
 
-  // scalaLibs
+  // scalaLibs6
 
   val scala_binary = "2.11"
-  val scala_version = "2.11.7"
+  val scala_version = "2.11.8"
 
   // Scala library modules
 
