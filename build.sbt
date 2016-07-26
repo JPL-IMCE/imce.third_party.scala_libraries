@@ -8,6 +8,8 @@ import scala.util.matching.Regex
 
 useGpg := true
 
+updateOptions := updateOptions.value.withCachedResolution(true)
+
 developers := List(
   Developer(
     id="rouquett",
@@ -107,15 +109,15 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
             if !providedOrganizationArtifacts.contains(organizationArtifactKey)
             mReport <- oReport.modules
             (artifact, file) <- mReport.artifacts
-            if "jar" == artifact.extension
+            if !mReport.evicted && "jar" == artifact.extension
           } yield (oReport.organization, oReport.name, file, artifact)
 
           val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
             a.`classifier`.getOrElse(a.`type`)
           }
-          val jarArtifacts = fileArtifactsByType("jar")
-          val srcArtifacts = fileArtifactsByType("sources")
-          val docArtifacts = fileArtifactsByType("javadoc")
+          val jarArtifacts = fileArtifactsByType("jar").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
+          val srcArtifacts = fileArtifactsByType("sources").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
+          val docArtifacts = fileArtifactsByType("javadoc").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
 
           val jars = jarArtifacts.map { case (o, _, jar, _) =>
             s.log.info(s"* jar: $o/${jar.name}")
