@@ -112,7 +112,7 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
             if !mReport.evicted && "jar" == artifact.extension
           } yield (oReport.organization, oReport.name, file, artifact)
 
-          val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
+          val fileArtifactsByType = fileArtifacts.to[Set].to[Seq].groupBy { case (_, _, _, a) =>
             a.`classifier`.getOrElse(a.`type`)
           }
           val jarArtifacts = fileArtifactsByType("jar").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
