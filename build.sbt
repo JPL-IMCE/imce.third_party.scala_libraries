@@ -112,22 +112,22 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
             if !mReport.evicted && "jar" == artifact.extension
           } yield (oReport.organization, oReport.name, file, artifact)
 
-          val fileArtifactsByType = fileArtifacts.to[Set].to[Seq].groupBy { case (_, _, _, a) =>
+          val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
             a.`classifier`.getOrElse(a.`type`)
           }
-          val jarArtifacts = fileArtifactsByType("jar").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
-          val srcArtifacts = fileArtifactsByType("sources").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
-          val docArtifacts = fileArtifactsByType("javadoc").sortBy { case (o, _, jar, _) => s"$o/${jar.name}" }
+          val jarArtifacts = fileArtifactsByType("jar").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
+          val srcArtifacts = fileArtifactsByType("sources").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
+          val docArtifacts = fileArtifactsByType("javadoc").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
 
-          val jars = jarArtifacts.map { case (o, _, jar, _) =>
+          val jars = jarArtifacts.map { case (o, jar) =>
             s.log.info(s"* jar: $o/${jar.name}")
             jar -> (libDir + jar.name)
           }
-          val srcs = srcArtifacts.map { case (o, _, jar, _) =>
+          val srcs = srcArtifacts.map { case (o, jar) =>
             s.log.info(s"* src: $o/${jar.name}")
             jar -> (srcDir + jar.name)
           }
-          val docs = docArtifacts.map { case (o, _, jar, _) =>
+          val docs = docArtifacts.map { case (o, jar) =>
             s.log.info(s"* doc: $o/${jar.name}")
             jar -> (docDir + jar.name)
           }
