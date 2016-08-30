@@ -12,10 +12,10 @@ updateOptions := updateOptions.value.withCachedResolution(true)
 
 developers := List(
   Developer(
-    id="rouquett",
+    id="NicolasRouquette",
     name="Nicolas F. Rouquette",
     email="nicolas.f.rouquette@jpl.nasa.gov",
-    url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
+    url=url("https://github.com/NicolasRouquette")))
 
 val resourceArtifact = settingKey[Artifact]("Specifies the project's resource artifact")
 
