@@ -6,16 +6,7 @@ import gov.nasa.jpl.imce.sbt._
 import org.fusesource.scalate.TemplateEngine
 import scala.util.matching.Regex
 
-useGpg := true
-
 updateOptions := updateOptions.value.withCachedResolution(true)
-
-developers := List(
-  Developer(
-    id="NicolasRouquette",
-    name="Nicolas F. Rouquette",
-    email="nicolas.f.rouquette@jpl.nasa.gov",
-    url=url("https://github.com/NicolasRouquette")))
 
 val resourceArtifact = settingKey[Artifact]("Specifies the project's resource artifact")
 
