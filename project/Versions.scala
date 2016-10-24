@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "3.0.0"
+  val version = "3.0.3"
 
   // scalaLibs6
 
@@ -12,7 +12,7 @@ object Versions {
   // Scala library modules
 
   // http://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml_2.11
-  val scala_xml_version = "1.0.5"
+  val scala_xml_version = "1.0.6"
 
   // http://mvnrepository.com/artifact/org.scala-lang.modules/scala-parser-combinators_2.11
   val scala_parser_combinators_version = "1.0.4"
@@ -21,7 +21,7 @@ object Versions {
   val scala_swing_version = "1.0.2"
 
   //http://mvnrepository.com/artifact/org.scala-lang.modules/scala-java8-compat_2.11
-  val scala_java8_compat_version = "0.8.0-RC3"
+  val scala_java8_compat_version = "0.8.0-RC8"
 
   // Scala compiler plugins
 
