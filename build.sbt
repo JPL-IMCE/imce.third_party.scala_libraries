@@ -13,8 +13,6 @@ val resourceArtifact = settingKey[Artifact]("Specifies the project's resource ar
 def IMCEThirdPartyProject(projectName: String, location: String): Project =
   Project(projectName, file("."))
     .enablePlugins(IMCEGitPlugin)
-    .enablePlugins(IMCEReleasePlugin)
-    .settings(IMCEReleasePlugin.packageReleaseProcessSettings)
     .settings(
       IMCEKeys.targetJDK := IMCEKeys.jdk18.value,
       IMCEKeys.licenseYearOrRange := "2015-2016",
@@ -58,78 +56,80 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
       artifacts += resourceArtifact.value,
 
       // contents of the '*-resource.zip' to be produced by 'universal:packageBin'
-      mappings in Universal <++= (
-        appConfiguration,
-        classpathTypes,
-        update,
-        streams) map {
-        (appC, cpT, up, s) =>
+      mappings in Universal ++= {
+        val appC = appConfiguration.value
+        val cpT = classpathTypes.value
+        val up = update.value
+        val s = streams.value
 
-          def getFileIfExists(f: File, where: String)
-          : Option[(File, String)] =
-            if (f.exists()) Some((f, s"$where/${f.getName}")) else None
+        def getFileIfExists(f: File, where: String)
+        : Option[(File, String)] =
+          if (f.exists()) Some((f, s"$where/${f.getName}")) else None
 
-          val ivyHome: File =
-            Classpaths
-              .bootIvyHome(appC)
-              .getOrElse(sys.error("Launcher did not provide the Ivy home directory."))
+        val ivyHome: File =
+          Classpaths
+            .bootIvyHome(appC)
+            .getOrElse(sys.error("Launcher did not provide the Ivy home directory."))
 
-          val libDir = location + "/lib/"
-          val srcDir = location + "/lib.sources/"
-          val docDir = location + "/lib.javadoc/"
+        val libDir = location + "/lib/"
+        val srcDir = location + "/lib.sources/"
+        val docDir = location + "/lib.javadoc/"
 
-          s.log.info(s"====== $projectName =====")
+        s.log.info(s"====== $projectName =====")
 
-          val providedOrganizationArtifacts: Set[String] = (for {
-            cReport <- up.configurations
-            if Configurations.Provided.name == cReport.configuration
-            oReport <- cReport.details
-            mReport <- oReport.modules
-            (artifact, file) <- mReport.artifacts
-            if "jar" == artifact.extension
-          } yield {
-            s.log.info(s"provided: ${oReport.organization}, ${file.name}")
-            s"{oReport.organization},${oReport.name}"
-          }).to[Set]
+        val providedOrganizationArtifacts: Set[String] = (for {
+          cReport <- up.configurations
+          if Configurations.Provided.name == cReport.configuration
+          oReport <- cReport.details
+          mReport <- oReport.modules
+          (artifact, file) <- mReport.artifacts
+          if "jar" == artifact.extension
+        } yield {
+          s.log.info(s"provided: ${oReport.organization}, ${file.name}")
+          s"{oReport.organization},${oReport.name}"
+        }).to[Set]
 
-          val fileArtifacts = for {
-            cReport <- up.configurations
-            if Configurations.Compile.name == cReport.configuration
-            oReport <- cReport.details
-            organizationArtifactKey = s"{oReport.organization},${oReport.name}"
-            if !providedOrganizationArtifacts.contains(organizationArtifactKey)
-            mReport <- oReport.modules
-            (artifact, file) <- mReport.artifacts
-            if !mReport.evicted && "jar" == artifact.extension
-          } yield (oReport.organization, oReport.name, file, artifact)
+        val fileArtifacts = for {
+          cReport <- up.configurations
+          if Configurations.Compile.name == cReport.configuration
+          oReport <- cReport.details
+          organizationArtifactKey = s"{oReport.organization},${oReport.name}"
+          if !providedOrganizationArtifacts.contains(organizationArtifactKey)
+          mReport <- oReport.modules
+          (artifact, file) <- mReport.artifacts
+          if !mReport.evicted && "jar" == artifact.extension
+        } yield (oReport.organization, oReport.name, file, artifact)
 
-          val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
-            a.`classifier`.getOrElse(a.`type`)
-          }
-          val jarArtifacts = fileArtifactsByType("jar").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
-          val srcArtifacts = fileArtifactsByType("sources").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
-          val docArtifacts = fileArtifactsByType("javadoc").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
+        val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
+          a.`classifier`.getOrElse(a.`type`)
+        }
+        val jarArtifacts = fileArtifactsByType("jar").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
+        val srcArtifacts = fileArtifactsByType("sources").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
+        val docArtifacts = fileArtifactsByType("javadoc").map { case (o, _, jar, _) => o -> jar }.to[Set].to[Seq].sortBy { case (o, jar) => s"$o/${jar.name}" }
 
-          val jars = jarArtifacts.map { case (o, jar) =>
-            s.log.info(s"* jar: $o/${jar.name}")
-            jar -> (libDir + jar.name)
-          }
-          val srcs = srcArtifacts.map { case (o, jar) =>
-            s.log.info(s"* src: $o/${jar.name}")
-            jar -> (srcDir + jar.name)
-          }
-          val docs = docArtifacts.map { case (o, jar) =>
-            s.log.info(s"* doc: $o/${jar.name}")
-            jar -> (docDir + jar.name)
-          }
+        val jars = jarArtifacts.map { case (o, jar) =>
+          s.log.info(s"* jar: $o/${jar.name}")
+          jar -> (libDir + jar.name)
+        }
+        val srcs = srcArtifacts.map { case (o, jar) =>
+          s.log.info(s"* src: $o/${jar.name}")
+          jar -> (srcDir + jar.name)
+        }
+        val docs = docArtifacts.map { case (o, jar) =>
+          s.log.info(s"* doc: $o/${jar.name}")
+          jar -> (docDir + jar.name)
+        }
 
-          jars ++ srcs ++ docs
+        jars ++ srcs ++ docs
       },
 
-      extractArchives := {},
-
-      artifacts <+= (name in Universal) { n => Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map()) },
-      packagedArtifacts <+= (packageBin in Universal, name in Universal) map { (p, n) =>
+      artifacts += {
+        val n = (name in Universal).value
+        Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map())
+      },
+      packagedArtifacts += {
+        val p = (packageBin in Universal).value
+        val n = (name in Universal).value
         Artifact(n, "zip", "zip", Some("resource"), Seq(), None, Map()) -> p
       }
     )
