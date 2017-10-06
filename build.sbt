@@ -77,28 +77,13 @@ def IMCEThirdPartyProject(projectName: String, location: String): Project =
 
         s.log.info(s"====== $projectName =====")
 
-        val providedOrganizationArtifacts: Set[String] = (for {
-          cReport <- up.configurations
-          if Configurations.Provided.name == cReport.configuration
-          oReport <- cReport.details
-          mReport <- oReport.modules
-          (artifact, file) <- mReport.artifacts
-          if "jar" == artifact.extension
-        } yield {
-          s.log.info(s"provided: ${oReport.organization}, ${file.name}")
-          s"{oReport.organization},${oReport.name}"
-        }).to[Set]
-
         val fileArtifacts = for {
           cReport <- up.configurations
           if Configurations.Compile.name == cReport.configuration
-          oReport <- cReport.details
-          organizationArtifactKey = s"{oReport.organization},${oReport.name}"
-          if !providedOrganizationArtifacts.contains(organizationArtifactKey)
-          mReport <- oReport.modules
+          mReport <- cReport.modules
           (artifact, file) <- mReport.artifacts
           if !mReport.evicted && "jar" == artifact.extension
-        } yield (oReport.organization, oReport.name, file, artifact)
+        } yield (mReport.module.organization, mReport.module.name, file, artifact)
 
         val fileArtifactsByType = fileArtifacts.groupBy { case (_, _, _, a) =>
           a.`classifier`.getOrElse(a.`type`)
@@ -159,7 +144,7 @@ lazy val scalaLibs = IMCEThirdPartyProject("scala-libraries", "scalaLibs")
       "compile" withSources() withJavadoc(),
 
       "org.scala-lang.modules" %% "scala-java8-compat" % Versions.scala_java8_compat_version %
-        "compile" withSources() withJavadoc(),
+      "compile" withSources() withJavadoc(),
 
       "org.scala-lang.plugins" %% "scala-continuations-library" % Versions.scala_continuations_version %
       "compile" withSources() withJavadoc()
